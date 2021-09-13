@@ -61,6 +61,7 @@ namespace ClubsCore
                 c.IncludeXmlComments(xmlPath);
             });
 
+            //services.AddScoped(sp => MapperInitializer.GetMapper());
             services.AddSingleton(sp => MapperInitializer.GetMapper());
 
             services.AddControllers();

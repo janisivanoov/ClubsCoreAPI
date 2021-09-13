@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using ClubsCore.Contracts;
 using ClubsCore.Models;
 using ClubsCore.Paging;
-using Contracts;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,8 +16,8 @@ namespace ClubsCore.Controllers
     {
         private readonly DbContextOptions options;
 
-        public StudentsController(ClubsContext context, IMapper mapper, ILoggerManager logger, IRepositoryWrapper repository)
-            : base(context, mapper, logger, repository)
+        public StudentsController(ClubsContext context, IMapper mapper)
+            : base(context, mapper)
         {
         }
 
@@ -27,7 +25,7 @@ namespace ClubsCore.Controllers
         /// Filter by name
         /// </summary>
         [HttpGet]
-        public IActionResult GetStudentWithFilter([FromQuery] QueryParameters queryParameters) //add studentParameters
+        public IActionResult GetStudentWithFilter([FromQuery] QueryParameters queryParameters)
         {
             using (var context = new ClubsContext(options))
             {

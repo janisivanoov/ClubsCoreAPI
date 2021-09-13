@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using ClubsCore.Contracts;
 using ClubsCore.Mapping;
 using ClubsCore.Mapping.DTO;
 using ClubsCore.Models;
 using ClubsCore.Paging;
-using Contracts;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -17,9 +16,29 @@ namespace ClubsCore.Controllers
 {
     public class ClubsController : ApiControllerBase
     {
-        public ClubsController(ClubsContext context, IMapper mapper, ILoggerManager logger, IRepositoryWrapper repository)
-            : base(context, mapper, logger, repository)
+        private DbContextOptions options;
+
+        public ClubsController(ClubsContext context, IMapper mapper)
+            : base(context, mapper)
         {
+        }
+
+        /// <summary>
+        /// Filter by name
+        /// </summary>
+        [HttpGet]
+        public IActionResult GetClubWithFilter([FromQuery] QueryParameters queryParameters)
+        {
+            using (var context = new ClubsContext(options))
+            {
+                var clubs_from_context = from Student in _context.Students where Student.FirstName.StartsWith("A") select Student;
+                var club = context.Clubs.Where(club => club.Name == "Ali")
+                                              .OrderBy(c => c.Id)
+                                              .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
+                                              .Take(queryParameters.PageSize)
+                                              .ToList();
+                return Ok(club);
+            }
         }
 
         /// <summary>
