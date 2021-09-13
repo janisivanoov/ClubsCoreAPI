@@ -3,12 +3,10 @@ using AutoMapper.QueryableExtensions;
 using ClubsCore.Contracts;
 using ClubsCore.Models;
 using ClubsCore.Paging;
-using ClubsCore.Parameters;
 using Contracts;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,39 +24,10 @@ namespace ClubsCore.Controllers
         }
 
         /// <summary>
-        /// Filter
-        /// </summary>
-        //To try use /api/owner?maxYearOfBirth=1997
-        [HttpGet]
-        public IActionResult GetStudent([FromQuery] StudentParameters studentParameters)
-        {
-            if (false == studentParameters.IsValidYearRange)
-            {
-                return BadRequest("Max year of birth cannot be less than min year of birth");
-            }
-            var students = _repository.student.GetStudents(studentParameters);
-            var meta = new
-            {
-                students.PageSize,
-                students.CurrentPage,
-                students.TotalPages
-            };
-            var entries = new
-            {
-                students.TotalCount,
-                students.HasNext,
-                students.HasPrevious
-            };
-            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(meta));
-            _logger.LogInfo($"Returned {students.TotalCount} owners from database.");
-            return Ok(students);
-        }
-
-        /// <summary>
         /// Filter by name
         /// </summary>
         [HttpGet]
-        public IActionResult GetStudentWithFilter([FromQuery] QueryParameters queryParameters)
+        public IActionResult GetStudentWithFilter([FromQuery] QueryParameters queryParameters) //add studentParameters
         {
             using (var context = new ClubsContext(options))
             {
