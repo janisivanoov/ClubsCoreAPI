@@ -7,7 +7,6 @@ using ClubsCore.Paging;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,14 +20,6 @@ namespace ClubsCore.Controllers
         public ClubsController(ClubsContext context, IMapper mapper)
             : base(context, mapper)
         {
-        }
-
-        public List<TDto> Paginate<TDto>(IQueryable query, QueryParameters queryparameters)
-        {
-            return query.ProjectTo<TDto>(_mapper.ConfigurationProvider)
-                        .Skip((queryparameters.PageNumber - 1) * queryparameters.PageSize)
-                        .Take(queryparameters.PageSize)
-                        .ToList();
         }
 
         /// <summary>

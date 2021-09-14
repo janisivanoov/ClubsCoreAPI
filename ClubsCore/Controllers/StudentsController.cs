@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http.Description;
@@ -21,14 +20,6 @@ namespace ClubsCore.Controllers
         public StudentsController(ClubsContext context, IMapper mapper)
             : base(context, mapper)
         {
-        }
-
-        public List<Student> Paginate<Student>(IOrderedQueryable<Student> query, QueryParameters queryparameters)
-        {
-            return query.ProjectTo<Student>(_mapper.ConfigurationProvider)
-                                .Skip((queryparameters.PageNumber - 1) * queryparameters.PageSize)
-                                .Take(queryparameters.PageSize)
-                                .ToList();
         }
 
         /// <summary>
