@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using ClubsCore.Mapping.DTO;
 using ClubsCore.Models;
 using ClubsCore.Paging;
 using Microsoft.AspNetCore.JsonPatch;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Http.Description;
 
 namespace ClubsCore.Controllers
 {
@@ -19,6 +21,14 @@ namespace ClubsCore.Controllers
         public StudentsController(ClubsContext context, IMapper mapper)
             : base(context, mapper)
         {
+        }
+
+        public List<Student> Paginate<Student>(IOrderedQueryable<Student> query, QueryParameters queryparameters)
+        {
+            return query.ProjectTo<Student>(_mapper.ConfigurationProvider)
+                                .Skip((queryparameters.PageNumber - 1) * queryparameters.PageSize)
+                                .Take(queryparameters.PageSize)
+                                .ToList();
         }
 
         /// <summary>
@@ -40,6 +50,64 @@ namespace ClubsCore.Controllers
         }
 
         /// <summary>
+        /// StudentDTO in controller
+        /// </summary>
+        [HttpGet]
+        public IQueryable<StudentDTO> GetStudent()
+        {
+            var students = from Student in _context.Students
+                           select new StudentDTO()
+                           {
+                               Id = Student.Id,
+                               FirstName = Student.FirstName,
+                               LastName = Student.LastName,
+                               BirthDate = Student.BirthDate
+                           };
+            return students;
+        }
+
+        /// <summary>
+        /// StudentDTO in controller with Id search
+        /// </summary>
+        [ResponseType(typeof(StudentDTO))]
+        public async Task<System.Web.Http.IHttpActionResult> GetStudentUsingDTO(int id)
+        {
+            var student = await _context.Students.Include(student => student.FirstName).Select(student => new StudentDTO()
+            {
+                Id = student.Id,
+                FirstName = student.FirstName,
+                LastName = student.LastName,
+                BirthDate = student.BirthDate
+            }).SingleOrDefaultAsync(student => student.Id == id);
+            if (student == null)
+            {
+                return (System.Web.Http.IHttpActionResult)NotFound();
+            }
+            return (System.Web.Http.IHttpActionResult)Ok(student);
+        }
+
+        /// <summary>
+        /// Post using DTO
+        /// </summary>
+        [HttpPost]
+        public async Task<System.Web.Http.IHttpActionResult> PostStudentUsingDTO(Student studentPost)
+        {
+            var post_student = _context.Students
+                                    .Add(studentPost);
+
+            await _context.SaveChangesAsync();
+            _context.Entry(studentPost).Reference(x => x.FirstName).Load();
+            var dto = new StudentDTO()
+            {
+                Id = studentPost.Id,
+                FirstName = studentPost.FirstName,
+                LastName = studentPost.LastName,
+                BirthDate = studentPost.BirthDate
+            };
+            return (System.Web.Http.IHttpActionResult)CreatedAtRoute("Api", new { id = studentPost.Id }, dto);
+        }
+
+        /// <summary>
         /// GetAll
         /// </summary>
         [HttpGet]
@@ -51,14 +119,6 @@ namespace ClubsCore.Controllers
             var students = Paginate(studentsQuery, queryparameters);
 
             return Ok(students);
-        }
-
-        public List<Student> Paginate<Student>(IOrderedQueryable<Student> query, QueryParameters queryparameters)
-        {
-            return query.ProjectTo<Student>(_mapper.ConfigurationProvider)
-                                .Skip((queryparameters.PageNumber - 1) * queryparameters.PageSize)
-                                .Take(queryparameters.PageSize)
-                                .ToList();
         }
 
         /// <summary>
@@ -143,11 +203,6 @@ namespace ClubsCore.Controllers
                 LastName = "Example2",
                 BirthDate = new DateTime(2012, 12, 12)
             };
-        }
-
-        private bool StudentExists(int id)
-        {
-            return _context.Students.Any(e => e.Id == id);
         }
     }
 }

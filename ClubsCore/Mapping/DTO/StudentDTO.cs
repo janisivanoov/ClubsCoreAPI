@@ -1,9 +1,12 @@
-﻿namespace ClubsCore.Mapping.DTO
+﻿using System;
+
+namespace ClubsCore.Mapping.DTO
 {
     public class StudentDTO
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public DateTime BirthDate { get; set; }
     }
 }

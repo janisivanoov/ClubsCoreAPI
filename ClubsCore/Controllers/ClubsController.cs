@@ -23,6 +23,14 @@ namespace ClubsCore.Controllers
         {
         }
 
+        public List<TDto> Paginate<TDto>(IQueryable query, QueryParameters queryparameters)
+        {
+            return query.ProjectTo<TDto>(_mapper.ConfigurationProvider)
+                        .Skip((queryparameters.PageNumber - 1) * queryparameters.PageSize)
+                        .Take(queryparameters.PageSize)
+                        .ToList();
+        }
+
         /// <summary>
         /// Filter by name
         /// </summary>
@@ -80,14 +88,6 @@ namespace ClubsCore.Controllers
             var clubs = Paginate<ClubListingDTO>(clubsQuery, queryparameters);
 
             return Ok(clubs);
-        }
-
-        public List<TDto> Paginate<TDto>(IQueryable query, QueryParameters queryparameters)
-        {
-            return query.ProjectTo<TDto>(_mapper.ConfigurationProvider)
-                        .Skip((queryparameters.PageNumber - 1) * queryparameters.PageSize)
-                        .Take(queryparameters.PageSize)
-                        .ToList();
         }
 
         /// <summary>
@@ -171,11 +171,6 @@ namespace ClubsCore.Controllers
                 Type = "Sport",
                 Name = "Hokkey Sharks"
             };
-        }
-
-        private bool ClubExists(int clubId, int studentId)
-        {
-            return _context.Clubs.Any(e => e.Id == clubId) && _context.Students.Any(p => p.Id == studentId);
         }
     }
 }
