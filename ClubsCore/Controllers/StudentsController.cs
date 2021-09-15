@@ -59,29 +59,6 @@ namespace ClubsCore.Controllers
         }
 
         /// <summary>
-        /// StudentDTO in controller with Id search
-        /// </summary>
-        [ResponseType(typeof(StudentDTO))]
-        public async Task<System.Web.Http.IHttpActionResult> GetStudentUsingDTO(int id)
-        {
-            var student = await _context.Students
-                                         .Include(student => student.FirstName)
-                                         .Select(student => new StudentDTO()
-                                         {
-                                             Id = student.Id,
-                                             FirstName = student.FirstName,
-                                             LastName = student.LastName,
-                                             BirthDate = student.BirthDate
-                                         })
-                                         .SingleOrDefaultAsync(student => student.Id == id);
-            if (student == null)
-            {
-                return (System.Web.Http.IHttpActionResult)NotFound();
-            }
-            return (System.Web.Http.IHttpActionResult)Ok(student);
-        }
-
-        /// <summary>
         /// GetAll
         /// </summary>
         [HttpGet]
@@ -110,6 +87,29 @@ namespace ClubsCore.Controllers
                 return NotFound();
 
             return Ok(student);
+        }
+
+        /// <summary>
+        /// StudentDTO in controller with Id search
+        /// </summary>
+        [ResponseType(typeof(StudentDTO))]
+        public async Task<System.Web.Http.IHttpActionResult> GetStudentUsingDTO(int id)
+        {
+            var student = await _context.Students
+                                         .Include(student => student.FirstName)
+                                         .Select(student => new StudentDTO()
+                                         {
+                                             Id = student.Id,
+                                             FirstName = student.FirstName,
+                                             LastName = student.LastName,
+                                             BirthDate = student.BirthDate
+                                         })
+                                         .SingleOrDefaultAsync(student => student.Id == id);
+            if (student == null)
+            {
+                return (System.Web.Http.IHttpActionResult)NotFound();
+            }
+            return (System.Web.Http.IHttpActionResult)Ok(student);
         }
 
         /// <summary>
