@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using ClubsCore.Mapping.DTO;
 using ClubsCore.Models;
 using ClubsCore.Paging;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -63,39 +64,21 @@ namespace ClubsCore.Controllers
         [ResponseType(typeof(StudentDTO))]
         public async Task<System.Web.Http.IHttpActionResult> GetStudentUsingDTO(int id)
         {
-            var student = await _context.Students.Include(student => student.FirstName).Select(student => new StudentDTO()
-            {
-                Id = student.Id,
-                FirstName = student.FirstName,
-                LastName = student.LastName,
-                BirthDate = student.BirthDate
-            }).SingleOrDefaultAsync(student => student.Id == id);
+            var student = await _context.Students
+                                         .Include(student => student.FirstName)
+                                         .Select(student => new StudentDTO()
+                                         {
+                                             Id = student.Id,
+                                             FirstName = student.FirstName,
+                                             LastName = student.LastName,
+                                             BirthDate = student.BirthDate
+                                         })
+                                         .SingleOrDefaultAsync(student => student.Id == id);
             if (student == null)
             {
                 return (System.Web.Http.IHttpActionResult)NotFound();
             }
             return (System.Web.Http.IHttpActionResult)Ok(student);
-        }
-
-        /// <summary>
-        /// Post using DTO
-        /// </summary>
-        [HttpPost]
-        public async Task<System.Web.Http.IHttpActionResult> PostStudentUsingDTO(Student studentPost)
-        {
-            var post_student = _context.Students
-                                    .Add(studentPost);
-
-            await _context.SaveChangesAsync();
-            _context.Entry(studentPost).Reference(x => x.FirstName).Load();
-            var dto = new StudentDTO()
-            {
-                Id = studentPost.Id,
-                FirstName = studentPost.FirstName,
-                LastName = studentPost.LastName,
-                BirthDate = studentPost.BirthDate
-            };
-            return (System.Web.Http.IHttpActionResult)CreatedAtRoute("Api", new { id = studentPost.Id }, dto);
         }
 
         /// <summary>
@@ -162,38 +145,23 @@ namespace ClubsCore.Controllers
         /// <summary>
         /// Patch
         /// </summary>
-        [HttpPatch]
-        public IActionResult JsonPatchWithModelState(
-            [FromBody] JsonPatchDocument<Student> patchDoc)
+        [HttpPatch("{id}")]
+        public IActionResult Patch(int id, [FromBody] JsonPatchDocument<Student> value)
         {
-            if (patchDoc != null)
+            try
             {
-                var student = CreateStudent();
-
-                patchDoc.ApplyTo(student, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
-
-                if (!ModelState.IsValid)
+                var result = _context.Students.FirstOrDefault(n => n.Id == id);
+                if (result == null)
                 {
-                    return BadRequest(ModelState);
+                    return BadRequest();
                 }
-
-                return new ObjectResult(student);
+                value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
+                return NoContent();
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest(ModelState);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
-        }
-
-        private Student CreateStudent()
-        {
-            return new Student
-            {
-                Id = 8,
-                FirstName = "Example1",
-                LastName = "Example2",
-                BirthDate = new DateTime(2012, 12, 12)
-            };
         }
     }
 }

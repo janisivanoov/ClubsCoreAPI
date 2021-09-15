@@ -4,10 +4,11 @@ using ClubsCore.Mapping;
 using ClubsCore.Mapping.DTO;
 using ClubsCore.Models;
 using ClubsCore.Paging;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Entity;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,51 +21,6 @@ namespace ClubsCore.Controllers
         public ClubsController(ClubsContext context, IMapper mapper)
             : base(context, mapper)
         {
-        }
-
-        /// <summary>
-        /// Filter by name
-        /// </summary>
-        [HttpGet]
-        public IActionResult GetClubWithFilter([FromQuery] QueryParameters queryParameters)
-        {
-            using (var context = new ClubsContext(options))
-            {
-                var clubs_from_context = from Student in _context.Students where Student.FirstName.StartsWith("A") select Student;
-                var club = context.Clubs.Where(club => club.Name == "Ali")
-                                              .OrderBy(c => c.Id)
-                                              .Skip((queryParameters.PageNumber - 1) * queryParameters.PageSize)
-                                              .Take(queryParameters.PageSize)
-                                              .ToList();
-                return Ok(club);
-            }
-        }
-
-        /// <summary>
-        /// ClubDTO
-        /// </summary>
-        [Route("Get_Using_ClubDTO")]
-        [HttpGet]
-        public IActionResult Get_Clubs_With_ClubDTO([FromQuery] QueryParameters queryparameters)
-        {
-            var clubs_withClubDTOQuery = _context.Clubs
-                                                 .OrderBy(c => c.Id);
-            var clubs_withClubsDTO = Paginate<ClubDTO>(clubs_withClubDTOQuery, queryparameters);
-            return Ok(clubs_withClubsDTO);
-        }
-
-        /// <summary>
-        /// Get_All_UsingClubListingDTO
-        /// </summary>
-        [Route("Get_Using_ClubListingDTO")]
-        [HttpGet]
-        public IActionResult Get_Clubs_With_ClubListingDTO([FromQuery] QueryParameters queryparameters)
-        {
-            var clubs_withListingDTOQuery = _context.Clubs
-                                      .OrderBy(c => c.Id);
-
-            var clubs_withListingDTO = Paginate<ClubListingDTO>(clubs_withListingDTOQuery, queryparameters);
-            return Ok(clubs_withListingDTO);
         }
 
         /// <summary>
@@ -82,19 +38,6 @@ namespace ClubsCore.Controllers
         }
 
         /// <summary>
-        /// Post
-        /// </summary>
-        [HttpPost]
-        public async Task<IActionResult> PostClubAsync(Club clubPost)
-        {
-            var post_club = _context.Clubs
-                                    .Add(clubPost);
-
-            await _context.SaveChangesAsync();
-            return CreatedAtRoute("Post", new { Id = clubPost.Id }, clubPost);
-        }
-
-        /// <summary>
         /// Get_By_Id
         /// </summary>
         [HttpGet("{id}")]
@@ -109,6 +52,19 @@ namespace ClubsCore.Controllers
                 return NotFound();
 
             return Ok(club);
+        }
+
+        /// <summary>
+        /// Post
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> PostClubAsync(Club clubPost)
+        {
+            var post_club = _context.Clubs
+                                    .Add(clubPost);
+
+            await _context.SaveChangesAsync();
+            return CreatedAtRoute("Post", new { Id = clubPost.Id }, clubPost);
         }
 
         /// <summary>
@@ -131,37 +87,23 @@ namespace ClubsCore.Controllers
         /// <summary>
         /// Patch
         /// </summary>
-        [HttpPatch]
-        public IActionResult JsonPatchWithModelState(
-            [FromBody] JsonPatchDocument<Club> patchDoc)
+        [HttpPatch("{id}")]
+        public IActionResult Patch(int id, [FromBody] JsonPatchDocument<Club> value)
         {
-            if (patchDoc != null)
+            try
             {
-                var club = UpdateClub();
-
-                patchDoc.ApplyTo(club, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
-
-                if (!ModelState.IsValid)
+                var result = _context.Clubs.FirstOrDefault(n => n.Id == id);
+                if (result == null)
                 {
-                    return BadRequest(ModelState);
+                    return BadRequest();
                 }
-
-                return new ObjectResult(club);
+                value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
+                return NoContent();
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest(ModelState);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
-        }
-
-        private Club UpdateClub()
-        {
-            return new Club
-            {
-                Id = 2,
-                Type = "Sport",
-                Name = "Hokkey Sharks"
-            };
         }
     }
 }

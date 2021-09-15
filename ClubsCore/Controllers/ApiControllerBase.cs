@@ -14,8 +14,6 @@ namespace ClubsCore.Controllers
     {
         protected readonly IMapper _mapper;
         protected readonly ClubsContext _context;
-        protected object _query;
-        protected object _queryparameters;
 
         public ApiControllerBase(ClubsContext context, IMapper mapper)
         {
