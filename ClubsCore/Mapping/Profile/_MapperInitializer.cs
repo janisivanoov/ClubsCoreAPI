@@ -9,6 +9,7 @@ namespace ClubsCore.Mapping
             var config = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile<ClubProfile>();
+                cfg.AddProfile<StudentProfile>();
             });
 
             return config.CreateMapper();
