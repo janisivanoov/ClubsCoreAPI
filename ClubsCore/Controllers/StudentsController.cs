@@ -110,7 +110,10 @@ namespace ClubsCore.Controllers
                 {
                     return NotFound();
                 }
-                value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);  //update database, if it was successful apply
+                value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
+                _context.SaveChanges();
+                if (false == ModelState.IsValid)
+                    return BadRequest();
                 return Ok();
             }
             catch (Exception ex)

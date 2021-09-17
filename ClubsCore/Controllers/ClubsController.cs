@@ -94,11 +94,12 @@ namespace ClubsCore.Controllers
             {
                 var result = _context.Clubs.FirstOrDefault(n => n.Id == id);
                 if (result == null)
-                {
-                    return BadRequest();
-                }
+                    return NotFound();
                 value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
-                return NoContent();
+                _context.SaveChanges();
+                if (false == ModelState.IsValid)
+                    return BadRequest();
+                return Ok();
             }
             catch (Exception ex)
             {
