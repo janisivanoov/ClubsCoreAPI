@@ -27,7 +27,7 @@ namespace ClubsCore.Controllers
         /// GetAll
         /// </summary>
         [HttpGet]
-        public IActionResult GetClubs([FromQuery] QueryClubParameters queryparameters, string name, ClubsContext clubsContext, string Name)
+        public IActionResult GetClubs([FromQuery] QueryClubParameters queryparameters, string name/*, ClubsContext clubsContext, string Name*/)
         {
             var clubsQuery = _context.Clubs
                                      .OrderBy(c => c.Id);
@@ -39,7 +39,7 @@ namespace ClubsCore.Controllers
             if (clubName == null)
                 return NotFound();
 
-            var clubs = Paginate<ClubListingDTO>(clubsQuery, queryparameters, clubsContext, Name);
+            var clubs = Paginate<ClubListingDTO>(clubsQuery, queryparameters/*, clubsContext, Name*/);
 
             return Ok(clubs);
         }

@@ -40,12 +40,12 @@ namespace ClubsCore.Controllers
         /// GetAll
         /// </summary>
         [HttpGet]
-        public IActionResult GetStudents([FromQuery] QueryStudentParameters queryparameters, string name, ClubsContext clubsContext, string FirstName)
+        public IActionResult GetStudents([FromQuery] QueryStudentParameters queryparameters, string name/*, ClubsContext clubsContext, string FirstName*/)
         {
             var studentsQuery = _context.Students
                                      .OrderBy(c => c.Id);
 
-            var students = Paginate(studentsQuery, queryparameters, clubsContext, FirstName);
+            var students = Paginate(studentsQuery, queryparameters/*, clubsContext, FirstName*/);
 
             var studentName = _context.Students
                                       .Where(n => n.FirstName == name)
