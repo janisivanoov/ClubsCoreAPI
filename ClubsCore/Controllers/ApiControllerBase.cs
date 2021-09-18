@@ -21,19 +21,29 @@ namespace ClubsCore.Controllers
             _context = context;
         }
 
-        public List<TDto> Paginate<TDto>(IQueryable query, QueryParameters queryparameters)
+        public List<TDto> Paginate<TDto>(IQueryable query, QueryClubParameters QueryClubParameters/*, ClubsContext clubsContext, string Name*/)
         {
+            //var NameCheck = _context.Club.Where(n => n.Name == Name).ToList().FirstOrDefault();
+
+            //if(NameCheck == null)
+            //return BadRequest(); ---- Consulte con Ali. No se puede convertir BadRequest() el error. Solucion dos
+
             return query.ProjectTo<TDto>(_mapper.ConfigurationProvider)
-                        .Skip((queryparameters.PageNumber - 1) * queryparameters.PageSize)
-                        .Take(queryparameters.PageSize)
+                        .Skip((QueryClubParameters.PageNumber - 1) * QueryClubParameters.PageSize)
+                        .Take(QueryClubParameters.PageSize)
                         .ToList();
         }
 
-        public List<Student> Paginate<Student>(IOrderedQueryable<Student> query, QueryParameters queryparameters)
+        public List<Student> Paginate<Student>(IOrderedQueryable<Student> query, QueryStudentParameters QueryStudentParameters/*, ClubsContext clubsContext, string FirstName*/)
         {
+            //var studentNameCheck = _context.Students.Where(n => n.FirstName == FirstName).ToList().FirstOrDefault();
+
+            //if (studentNameCheck == null)
+            //return BadRequest();   ---- Consulte con Ali. No se puede convertir BadRequest() el error. Solucion dos
+
             return query.ProjectTo<Student>(_mapper.ConfigurationProvider)
-                                .Skip((queryparameters.PageNumber - 1) * queryparameters.PageSize)
-                                .Take(queryparameters.PageSize)
+                                .Skip((QueryStudentParameters.PageNumber - 1) * QueryStudentParameters.PageSize)
+                                .Take(QueryStudentParameters.PageSize)
                                 .ToList();
         }
     }

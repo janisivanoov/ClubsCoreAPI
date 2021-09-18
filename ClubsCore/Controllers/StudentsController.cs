@@ -40,13 +40,17 @@ namespace ClubsCore.Controllers
         /// GetAll
         /// </summary>
         [HttpGet]
-        public IActionResult GetStudents([FromQuery] QueryParameters queryparameters)
+        public IActionResult GetStudents([FromQuery] QueryStudentParameters queryparameters, string name)
         {
             var studentsQuery = _context.Students
                                      .OrderBy(c => c.Id);
 
             var students = Paginate(studentsQuery, queryparameters);
 
+            var studentName = _context.Students.Where(n => n.FirstName == name).ToList().FirstOrDefault();  //Solucion uno
+
+            if (studentName == null)
+                return NotFound();
             return Ok(students);
         }
 
@@ -54,12 +58,17 @@ namespace ClubsCore.Controllers
         /// Get_By_Id
         /// </summary>
         [HttpGet("{id}")]
-        public IActionResult GetStudent(int id)
+        public IActionResult GetStudent(int id, string name)
         {
             var student = _context.Students
                                .Where(x => x.Id == id)
                                .ProjectTo<Student>(_mapper.ConfigurationProvider)
                                .FirstOrDefault();
+
+            var studentName = _context.Students.Where(n => n.FirstName == name).ToList().FirstOrDefault();  //Solucion uno
+
+            if (studentName == null)
+                return BadRequest();
 
             if (student == null)
                 return NotFound();

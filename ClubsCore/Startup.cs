@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using NLog;
 using System;
 using System.IO;
 using System.Reflection;
@@ -20,7 +19,6 @@ namespace ClubsCore
     {
         public Startup(IConfiguration configuration)
         {
-            LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/log.config"));
             Configuration = configuration;
         }
 
