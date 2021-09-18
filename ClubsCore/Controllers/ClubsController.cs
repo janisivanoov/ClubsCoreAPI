@@ -27,19 +27,19 @@ namespace ClubsCore.Controllers
         /// GetAll
         /// </summary>
         [HttpGet]
-        public IActionResult GetClubs([FromQuery] QueryClubParameters queryparameters, string name/*, ClubsContext clubsContext, string Name*/)
+        public ActionResult GetClubs([FromQuery] QueryClubParameters queryparameters, string name)
         {
             var clubsQuery = _context.Clubs
                                      .OrderBy(c => c.Id);
-            var clubName = _context.Students
-                                   .Where(n => n.FirstName == name)
+            var clubName = _context.Clubs
+                                   .Where(n => n.Name == name)
                                    .ToList()
-                                   .FirstOrDefault();  //Solucion uno
+                                   .FirstOrDefault();
 
             if (clubName == null)
                 return NotFound();
 
-            var clubs = Paginate<ClubListingDTO>(clubsQuery, queryparameters/*, clubsContext, Name*/);
+            var clubs = Paginate<ClubListingDTO>(clubsQuery, queryparameters);
 
             return Ok(clubs);
         }
@@ -48,7 +48,7 @@ namespace ClubsCore.Controllers
         /// Get_By_Id
         /// </summary>
         [HttpGet("{id}")]
-        public IActionResult GetClub(int id, string name)
+        public ActionResult GetClub(int id, string name)
         {
             var club = _context.Clubs
                                .Where(x => x.Id == id)
@@ -58,7 +58,7 @@ namespace ClubsCore.Controllers
             var clubName = _context.Clubs
                                    .Where(n => n.Name == name)
                                    .ToList()
-                                   .FirstOrDefault();  //Solucion uno
+                                   .FirstOrDefault();
 
             if (clubName == null)
                 return BadRequest();
@@ -73,7 +73,7 @@ namespace ClubsCore.Controllers
         /// Post
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> PostClubAsync(Club clubPost)
+        public async Task<ActionResult> PostClubAsync(Club clubPost)
         {
             var post_club = _context.Clubs
                                     .Add(clubPost);
@@ -103,7 +103,7 @@ namespace ClubsCore.Controllers
         /// Patch
         /// </summary>
         [HttpPatch("{id}")]
-        public IActionResult Patch(int id, [FromBody] JsonPatchDocument<Club> value)
+        public ActionResult Patch(int id, [FromBody] JsonPatchDocument<Club> value)
         {
             try
             {

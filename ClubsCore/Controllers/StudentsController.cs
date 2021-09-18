@@ -40,17 +40,17 @@ namespace ClubsCore.Controllers
         /// GetAll
         /// </summary>
         [HttpGet]
-        public IActionResult GetStudents([FromQuery] QueryStudentParameters queryparameters, string name/*, ClubsContext clubsContext, string FirstName*/)
+        public ActionResult GetStudents([FromQuery] QueryStudentParameters queryparameters, string name)
         {
             var studentsQuery = _context.Students
                                      .OrderBy(c => c.Id);
 
-            var students = Paginate(studentsQuery, queryparameters/*, clubsContext, FirstName*/);
+            var students = Paginate(studentsQuery, queryparameters);
 
             var studentName = _context.Students
                                       .Where(n => n.FirstName == name)
                                       .ToList()
-                                      .FirstOrDefault();  //Solucion uno
+                                      .FirstOrDefault();
 
             if (studentName == null)
                 return NotFound();
@@ -61,7 +61,7 @@ namespace ClubsCore.Controllers
         /// Get_By_Id
         /// </summary>
         [HttpGet("{id}")]
-        public IActionResult GetStudent(int id, string name)
+        public ActionResult GetStudent(int id, string name)
         {
             var student = _context.Students
                                .Where(x => x.Id == id)
@@ -71,7 +71,7 @@ namespace ClubsCore.Controllers
             var studentName = _context.Students
                                       .Where(n => n.FirstName == name)
                                       .ToList()
-                                      .FirstOrDefault();  //Solucion uno
+                                      .FirstOrDefault();
 
             if (studentName == null)
                 return BadRequest();
@@ -86,7 +86,7 @@ namespace ClubsCore.Controllers
         /// Post
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> PostStudentAsync(Student studentPost)
+        public async Task<ActionResult> PostStudentAsync(Student studentPost)
         {
             var post_student = _context.Students
                                     .Add(studentPost);
@@ -116,7 +116,7 @@ namespace ClubsCore.Controllers
         /// Patch
         /// </summary>
         [HttpPatch("{id}")]
-        public IActionResult Patch(int id, [FromBody] JsonPatchDocument<Student> value)
+        public ActionResult Patch(int id, [FromBody] JsonPatchDocument<Student> value)
         {
             try
             {

@@ -100,11 +100,6 @@ namespace ClubsCore
             {
                 ForwardedHeaders = ForwardedHeaders.All
             });
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
         }
     }
 }
