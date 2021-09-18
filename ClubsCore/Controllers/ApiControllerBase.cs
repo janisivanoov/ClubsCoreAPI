@@ -21,9 +21,12 @@ namespace ClubsCore.Controllers
             _context = context;
         }
 
-        public List<TDto> Paginate<TDto>(IQueryable query, QueryClubParameters QueryClubParameters/*, ClubsContext clubsContext, string Name*/)
+        public List<TDto> Paginate<TDto>(IQueryable query, QueryClubParameters QueryClubParameters, ClubsContext clubsContext, string Name)
         {
-            //var NameCheck = _context.Club.Where(n => n.Name == Name).ToList().FirstOrDefault();
+            var NameCheck = _context.Clubs
+                                    .Where(n => n.Name == Name)
+                                    .ToList()
+                                    .FirstOrDefault();
 
             //if(NameCheck == null)
             //return BadRequest(); ---- Consulte con Ali. No se puede convertir BadRequest() el error. Solucion dos
@@ -34,12 +37,15 @@ namespace ClubsCore.Controllers
                         .ToList();
         }
 
-        public List<Student> Paginate<Student>(IOrderedQueryable<Student> query, QueryStudentParameters QueryStudentParameters/*, ClubsContext clubsContext, string FirstName*/)
+        public List<Student> Paginate(IOrderedQueryable<Student> query, QueryStudentParameters QueryStudentParameters, ClubsContext clubsContext, string FirstName)
         {
-            //var studentNameCheck = _context.Students.Where(n => n.FirstName == FirstName).ToList().FirstOrDefault();
+            var studentNameCheck = _context.Students
+                                           .Where(n => n.FirstName == FirstName)
+                                           .ToList()
+                                           .FirstOrDefault();
 
             //if (studentNameCheck == null)
-            //return BadRequest();   ---- Consulte con Ali. No se puede convertir BadRequest() el error. Solucion dos
+            //return BadRequest();   //---- Consulte con Ali. No se puede convertir BadRequest() el error. Solucion dos
 
             return query.ProjectTo<Student>(_mapper.ConfigurationProvider)
                                 .Skip((QueryStudentParameters.PageNumber - 1) * QueryStudentParameters.PageSize)

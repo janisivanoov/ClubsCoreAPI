@@ -27,16 +27,19 @@ namespace ClubsCore.Controllers
         /// GetAll
         /// </summary>
         [HttpGet]
-        public IActionResult GetClubs([FromQuery] QueryClubParameters queryparameters, string name)
+        public IActionResult GetClubs([FromQuery] QueryClubParameters queryparameters, string name, ClubsContext clubsContext, string Name)
         {
             var clubsQuery = _context.Clubs
                                      .OrderBy(c => c.Id);
-            var clubName = _context.Students.Where(n => n.FirstName == name).ToList().FirstOrDefault(); //Solucion uno
+            var clubName = _context.Students
+                                   .Where(n => n.FirstName == name)
+                                   .ToList()
+                                   .FirstOrDefault();  //Solucion uno
+
             if (clubName == null)
-            {
                 return NotFound();
-            }
-            var clubs = Paginate<ClubListingDTO>(clubsQuery, queryparameters);
+
+            var clubs = Paginate<ClubListingDTO>(clubsQuery, queryparameters, clubsContext, Name);
 
             return Ok(clubs);
         }
@@ -52,7 +55,10 @@ namespace ClubsCore.Controllers
                                .ProjectTo<ClubDTO>(_mapper.ConfigurationProvider)
                                .FirstOrDefault();
 
-            var clubName = _context.Clubs.Where(n => n.Name == name).ToList().FirstOrDefault();  //Solucion uno
+            var clubName = _context.Clubs
+                                   .Where(n => n.Name == name)
+                                   .ToList()
+                                   .FirstOrDefault();  //Solucion uno
 
             if (clubName == null)
                 return BadRequest();
