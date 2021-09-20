@@ -1,9 +1,7 @@
-using AccountOwnerServer.Extensions;
 using ClubsCore.Mapping;
 using ClubsCore.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,10 +62,6 @@ namespace ClubsCore
             services.AddControllers();
 
             services.AddSwaggerGen();
-
-            services.ConfigureCors();
-
-            services.ConfigureIISIntegration();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -86,19 +80,11 @@ namespace ClubsCore
 
             app.UseRouting();
 
-            app.UseHttpsRedirection();
-
-            app.UseStaticFiles();
-
-            app.UseRouting();
-
             app.UseAuthorization();
 
-            app.UseCors("CorsPolicy");
-
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            app.UseEndpoints(endpoints =>
             {
-                ForwardedHeaders = ForwardedHeaders.All
+                endpoints.MapControllers();
             });
         }
     }

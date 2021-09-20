@@ -29,9 +29,9 @@ namespace ClubsCore.Controllers
                         .ToList();
         }
 
-        public List<Student> Paginate(IOrderedQueryable<Student> query, QueryStudentParameters QueryStudentParameters)
+        public List<TDTO> Paginate<TDTO>(IQueryable<TDTO> query, QueryStudentParameters QueryStudentParameters)
         {
-            return query.ProjectTo<Student>(_mapper.ConfigurationProvider)
+            return query.ProjectTo<TDTO>(_mapper.ConfigurationProvider)
                                 .Skip((QueryStudentParameters.PageNumber - 1) * QueryStudentParameters.PageSize)
                                 .Take(QueryStudentParameters.PageSize)
                                 .ToList();

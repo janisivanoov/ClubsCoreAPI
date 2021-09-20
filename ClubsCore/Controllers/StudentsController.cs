@@ -20,40 +20,27 @@ namespace ClubsCore.Controllers
         }
 
         /// <summary>
-        /// StudentDTO in controller
-        /// </summary>
-        [HttpGet]
-        public IQueryable<StudentDTO> GetStudent()
-        {
-            var students = from Student in _context.Students
-                           select new StudentDTO()
-                           {
-                               Id = Student.Id,
-                               FirstName = Student.FirstName,
-                               LastName = Student.LastName,
-                               BirthDate = Student.BirthDate
-                           };
-            return students;
-        }
-
-        /// <summary>
         /// GetAll
         /// </summary>
         [HttpGet]
-        public ActionResult GetStudents([FromQuery] QueryStudentParameters queryparameters, string name)
+        public ActionResult GetStudents([FromQuery] QueryStudentParameters queryparameters, string FirtsName = "Ali")
         {
             var studentsQuery = _context.Students
-                                     .OrderBy(c => c.Id);
+                                     .OrderBy(c => c.Id); //ordering all students by Id
 
-            var students = Paginate(studentsQuery, queryparameters);
+            bool applyingFilter = true;
 
-            var studentName = _context.Students
-                                      .Where(n => n.FirstName == name)
-                                      .ToList()
-                                      .FirstOrDefault();
+            if (false == applyingFilter) //using bool
+            {
+                var filterForStudents = _context.Students
+                                                .Where(n => n.FirstName == FirtsName) //all Students with name "Ali"
+                                                .ToList(); //sent to list
+                if (filterForStudents == null)
+                    return NotFound();
+            }
 
-            if (studentName == null)
-                return NotFound();
+            var students = Paginate(studentsQuery, queryparameters); //using Paginate
+
             return Ok(students);
         }
 
@@ -64,17 +51,9 @@ namespace ClubsCore.Controllers
         public ActionResult GetStudent(int id, string name)
         {
             var student = _context.Students
-                               .Where(x => x.Id == id)
-                               .ProjectTo<Student>(_mapper.ConfigurationProvider)
-                               .FirstOrDefault();
-
-            var studentName = _context.Students
-                                      .Where(n => n.FirstName == name)
-                                      .ToList()
-                                      .FirstOrDefault();
-
-            if (studentName == null)
-                return BadRequest();
+                               .Where(x => x.Id == id) //searching for Student using Id
+                               .ProjectTo<StudentDTO>(_mapper.ConfigurationProvider)//using mapper and StudentDTO
+                               .FirstOrDefault(); //Selecting the club by Id with StudentDTO parameters or make it as a default
 
             if (student == null)
                 return NotFound();
@@ -89,9 +68,9 @@ namespace ClubsCore.Controllers
         public async Task<ActionResult> PostStudentAsync(Student studentPost)
         {
             var post_student = _context.Students
-                                    .Add(studentPost);
+                                    .Add(studentPost); //using Add function to post a student
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); //saving edit in a database
             return CreatedAtRoute("Post", new { Id = studentPost.Id }, studentPost);
         }
 
@@ -102,12 +81,12 @@ namespace ClubsCore.Controllers
         public async Task<ActionResult<Student>> DeleteStudent(int id)
         {
             var student = await _context.Students
-                                     .FindAsync(id);
+                                     .FindAsync(id); //searching for student using Id
             if (student == null)
                 return NotFound();
 
-            _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
+            _context.Students.Remove(student); //using Remove function
+            await _context.SaveChangesAsync(); //saving all in database
 
             return student;
         }
@@ -120,20 +99,23 @@ namespace ClubsCore.Controllers
         {
             try
             {
-                var result = _context.Students.FirstOrDefault(n => n.Id == id);
+                var result = _context.Students.FirstOrDefault(n => n.Id == id); //Getting Student by Id
+
                 if (result == null)
-                {
                     return NotFound();
-                }
-                value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
-                _context.SaveChanges();
+
+                value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState); //Applying edits
+
+                _context.SaveChanges(); //Saving in database
+
                 if (false == ModelState.IsValid)
                     return BadRequest();
+
                 return Ok();
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex); //Catching exceptions
             }
         }
     }

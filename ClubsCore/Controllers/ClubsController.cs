@@ -27,19 +27,24 @@ namespace ClubsCore.Controllers
         /// GetAll
         /// </summary>
         [HttpGet]
-        public ActionResult GetClubs([FromQuery] QueryClubParameters queryparameters, string name)
+        public ActionResult GetClubs([FromQuery] QueryClubParameters queryparameters, string Name = "Sport")
         {
             var clubsQuery = _context.Clubs
-                                     .OrderBy(c => c.Id);
-            var clubName = _context.Clubs
-                                   .Where(n => n.Name == name)
-                                   .ToList()
-                                   .FirstOrDefault();
+                                     .OrderBy(c => c.Id); //ordering all clubs by Id
 
-            if (clubName == null)
-                return NotFound();
+            bool applyFilter = true;
 
-            var clubs = Paginate<ClubListingDTO>(clubsQuery, queryparameters);
+            if (applyFilter == true) //using bool
+            {
+                var filterForClubs = _context.Clubs
+                                     .Where(n => n.Name == Name) //all Clubs with name "Sport"
+                                     .ToList(); //sent to list
+
+                if (filterForClubs == null)
+                    return NotFound();
+            }
+
+            var clubs = Paginate<ClubListingDTO>(clubsQuery, queryparameters); //using Paginate
 
             return Ok(clubs);
         }
@@ -51,17 +56,9 @@ namespace ClubsCore.Controllers
         public ActionResult GetClub(int id, string name)
         {
             var club = _context.Clubs
-                               .Where(x => x.Id == id)
-                               .ProjectTo<ClubDTO>(_mapper.ConfigurationProvider)
-                               .FirstOrDefault();
-
-            var clubName = _context.Clubs
-                                   .Where(n => n.Name == name)
-                                   .ToList()
-                                   .FirstOrDefault();
-
-            if (clubName == null)
-                return BadRequest();
+                               .Where(x => x.Id == id) //searching for Club using Id
+                               .ProjectTo<ClubDTO>(_mapper.ConfigurationProvider) //using mapper and ClubDTO
+                               .FirstOrDefault(); //Selecting the club by Id with ClubDTO parameters or make it as a default
 
             if (club == null)
                 return NotFound();
@@ -76,9 +73,9 @@ namespace ClubsCore.Controllers
         public async Task<ActionResult> PostClubAsync(Club clubPost)
         {
             var post_club = _context.Clubs
-                                    .Add(clubPost);
+                                    .Add(clubPost); //using Add function to post a club
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); //saving edit in a database
             return CreatedAtRoute("Post", new { Id = clubPost.Id }, clubPost);
         }
 
@@ -89,12 +86,12 @@ namespace ClubsCore.Controllers
         public async Task<ActionResult<Club>> DeleteClub(int id)
         {
             var club = await _context.Clubs
-                                     .FindAsync(id);
+                                     .FindAsync(id); //searching for club using Id
             if (club == null)
                 return NotFound();
 
-            _context.Clubs.Remove(club);
-            await _context.SaveChangesAsync();
+            _context.Clubs.Remove(club); //using Remove function
+            await _context.SaveChangesAsync(); //saving all in database
 
             return club;
         }
@@ -107,18 +104,23 @@ namespace ClubsCore.Controllers
         {
             try
             {
-                var result = _context.Clubs.FirstOrDefault(n => n.Id == id);
+                var result = _context.Clubs.FirstOrDefault(n => n.Id == id); //Getting Club by Id
+
                 if (result == null)
                     return NotFound();
-                value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
-                _context.SaveChanges();
+
+                value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState); //Applying edits
+
+                _context.SaveChanges(); //Saving in database
+
                 if (false == ModelState.IsValid)
                     return BadRequest();
+
                 return Ok();
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex); //Catching exceptions
             }
         }
     }
