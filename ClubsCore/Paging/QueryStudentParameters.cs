@@ -11,7 +11,5 @@ namespace ClubsCore.Paging
 
         [Range(1, maxPageSize)]
         public int PageSize { get; set; }
-
-        public string FirstName;
     }
 }
