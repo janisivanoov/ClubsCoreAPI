@@ -104,7 +104,7 @@ namespace ClubsCore.Controllers
                 if (result == null)
                     return NotFound();
 
-                value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState); //Applying edits
+                value.ApplyTo(result, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState); //result gets the values from the patch request
 
                 _context.SaveChanges(); //Saving in database
 
