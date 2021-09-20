@@ -26,8 +26,8 @@ namespace ClubsCore.Controllers
         [HttpGet]
         public ActionResult GetClubs([FromQuery] QueryClubParameters queryparameters, string Name = "Math")
         {
-            var clubsQuery = _context.Clubs //ordering all clubs by Id
-                                     .OrderBy(c => c.Id);
+            var clubsQuery = _context.Clubs
+                                     .OrderBy(c => c.Id); //ordering all clubs by Id
 
             bool applyFilter = true;
 
