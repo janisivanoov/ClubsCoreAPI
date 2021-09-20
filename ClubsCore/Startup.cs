@@ -25,7 +25,6 @@ namespace ClubsCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper(typeof(Startup));
-
             var serverVersion = new MySqlServerVersion(new Version(8, 0, 25));
             services.AddDbContext<ClubsContext>(
               dbContextOptions => dbContextOptions
